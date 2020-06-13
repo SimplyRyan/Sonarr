@@ -265,15 +265,33 @@ namespace NzbDrone.Common.Disk
             var targetDriveFormat = targetMount?.DriveFormat ?? string.Empty;
 
             var isCifs = targetDriveFormat == "cifs";
+            var isBtrfs = sourceDriveFormat == "btrfs" && targetDriveFormat == "btrfs";
            
             if (mode.HasFlag(TransferMode.Copy))
             {
+                if (isBtrfs)
+                {
+                    if (_diskProvider.TryCreateRefLink(sourcePath, targetPath))
+                    {
+                        return TransferMode.Copy;
+                    }
+                }
+
                 TryCopyFileVerified(sourcePath, targetPath, originalSize);
                 return TransferMode.Copy;
             }
 
             if (mode.HasFlag(TransferMode.Move))
             {
+                if (isBtrfs && !isSameMount)
+                {
+                    if (_diskProvider.TryCreateRefLink(sourcePath, targetPath))
+                    {
+                        _diskProvider.DeleteFile(sourcePath);
+                        return TransferMode.Move;
+                    }
+                }
+
                 if (isCifs && !isSameMount)
                 {
                     TryCopyFileVerified(sourcePath, targetPath, originalSize);
