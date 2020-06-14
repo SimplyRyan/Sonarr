@@ -287,11 +287,13 @@ namespace NzbDrone.Common.Disk
                 {
                     if (isSameMount && _diskProvider.TryRenameFile(sourcePath, targetPath))
                     {
+                        _logger.Trace("Renamed [{0}] to [{1}].", sourcePath, targetPath);
                         return TransferMode.Move;
                     }
 
                     if (_diskProvider.TryCreateRefLink(sourcePath, targetPath))
                     {
+                        _logger.Trace("Reflink successful, deleting source [{0}].", sourcePath);
                         _diskProvider.DeleteFile(sourcePath);
                         return TransferMode.Move;
                     }
@@ -299,7 +301,9 @@ namespace NzbDrone.Common.Disk
 
                 if (isCifs && !isSameMount)
                 {
+                    _logger.Trace("On cifs mount. Starting verified copy [{0}] to [{1}].", sourcePath, targetPath);
                     TryCopyFileVerified(sourcePath, targetPath, originalSize);
+                    _logger.Trace("Copy successful, deleting source [{0}].", sourcePath);
                     _diskProvider.DeleteFile(sourcePath);
                     return TransferMode.Move;
                 }

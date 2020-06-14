@@ -42,15 +42,15 @@ namespace NzbDrone.Mono.Disk
                 {
                     if (srcHandle.IsInvalid)
                     {
-                        _logger.Trace("Failed to create reflink from '{0}' to '{1}': Couldn't open source file", linkPath, srcPath);
+                        _logger.Trace("Failed to create reflink at '{0}' to '{1}': Couldn't open source file", linkPath, srcPath);
                         return false;
                     }
 
-                    using (var linkHandle = NativeMethods.open(srcPath, OpenFlags.O_WRONLY | OpenFlags.O_CREAT | OpenFlags.O_TRUNC))
+                    using (var linkHandle = NativeMethods.open(linkPath, OpenFlags.O_WRONLY | OpenFlags.O_CREAT | OpenFlags.O_TRUNC))
                     {
                         if (linkHandle.IsInvalid)
                         {
-                            _logger.Trace("Failed to create reflink from '{0}' to '{1}': Couldn't create new link file", linkPath, srcPath);
+                            _logger.Trace("Failed to create reflink at '{0}' to '{1}': Couldn't create new link file", linkPath, srcPath);
                             return false;
                         }
 
@@ -59,11 +59,11 @@ namespace NzbDrone.Mono.Disk
                             var error = new UnixIOException();
                             linkHandle.Dispose();
                             Syscall.unlink(linkPath);
-                            _logger.Trace("Failed to create reflink from '{0}' to '{1}': {2}", linkPath, srcPath, error.Message);
+                            _logger.Trace("Failed to create reflink at '{0}' to '{1}': {2}", linkPath, srcPath, error.Message);
                             return false;
                         }
 
-                        _logger.Trace("Created reflink from '{0}' to '{1}'", linkPath, srcPath);
+                        _logger.Trace("Created reflink at '{0}' to '{1}'", linkPath, srcPath);
                         return true;
                     }
                 }
@@ -71,7 +71,7 @@ namespace NzbDrone.Mono.Disk
             catch (Exception ex)
             {
                 Syscall.unlink(linkPath);
-                _logger.Trace(ex, "Failed to create reflink from '{0}' to '{1}'", linkPath, srcPath);
+                _logger.Trace(ex, "Failed to create reflink at '{0}' to '{1}'", linkPath, srcPath);
                 return false;
             }
         }
