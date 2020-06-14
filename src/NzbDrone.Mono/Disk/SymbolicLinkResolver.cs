@@ -124,7 +124,7 @@ namespace NzbDrone.Mono.Disk
 
         private bool TryFollowSymbolicLink(ref string path, out bool wasSymLink)
         {
-            if (!UnixFileSystemInfo.TryGetFileSystemEntry(path, out var fsentry))
+            if (!UnixFileSystemInfo.TryGetFileSystemEntry(path, out var fsentry) || !fsentry.Exists)
             {
                 wasSymLink = false;
                 return false;
@@ -165,52 +165,5 @@ namespace NzbDrone.Mono.Disk
                 return true;
             }
         }
-
-        public bool TryGetRealPath(ref string path)
-        {
-            var links = 0;
-            do
-            {
-                if (!UnixFileSystemInfo.TryGetFileSystemEntry(path, out var fsentry))
-                {
-                    return false;
-                }
-                
-                if (!fsentry.IsSymbolicLink)
-                {
-                    return true;
-                }
-
-                var link = UnixPath.TryReadLink(path);
-
-                if (link == null)
-                {
-                    var errno = Stdlib.GetLastError();
-                    if (errno != Errno.EINVAL)
-                    {
-                        _logger.Trace("Checking path {0} for symlink returned error {1}, assuming it's not a symlink.", path, errno);
-                    }
-
-                    return true;
-                }
-
-                if (UnixPath.IsPathRooted(link))
-                {
-                    path = link;
-                }
-                else
-                {
-                    path = UnixPath.GetDirectoryName(path) + UnixPath.DirectorySeparatorChar + link;
-                    path = UnixPath.GetCanonicalPath(path);
-                }
-
-                if (links++ > 32)
-                {
-                    throw new UnixIOException(Errno.ELOOP);
-                }
-
-            } while (true);
-        } 
-
     }
 }
