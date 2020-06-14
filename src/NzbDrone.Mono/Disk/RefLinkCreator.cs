@@ -63,7 +63,7 @@ namespace NzbDrone.Mono.Disk
                             return false;
                         }
 
-                        _logger.Trace("Created reflink from '{0}' to '{1}': {2}", linkPath, srcPath);
+                        _logger.Trace("Created reflink from '{0}' to '{1}'", linkPath, srcPath);
                         return true;
                     }
                 }

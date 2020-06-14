@@ -93,9 +93,6 @@ namespace NzbDrone.Mono.Disk
 
             var realPath = "";
 
-            var pathValid = true;
-            var wasSymLink = false;
-
             for (var i = 0; i < lastIndex; ++i)
             {
                 if (i != 0 || UnixPath.IsPathRooted(path))
@@ -107,7 +104,7 @@ namespace NzbDrone.Mono.Disk
                     realPath = string.Concat(realPath, dirs[i]);
                 }
 
-                pathValid = TryFollowSymbolicLink(ref realPath, out wasSymLink);
+                var pathValid = TryFollowSymbolicLink(ref realPath, out var wasSymLink);
 
                 if (!pathValid || wasSymLink)
                 {
