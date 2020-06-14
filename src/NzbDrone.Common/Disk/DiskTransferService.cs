@@ -283,8 +283,13 @@ namespace NzbDrone.Common.Disk
 
             if (mode.HasFlag(TransferMode.Move))
             {
-                if (isBtrfs && !isSameMount)
+                if (isBtrfs)
                 {
+                    if (isSameMount && _diskProvider.TryRenameFile(sourcePath, targetPath))
+                    {
+                        return TransferMode.Move;
+                    }
+
                     if (_diskProvider.TryCreateRefLink(sourcePath, targetPath))
                     {
                         _diskProvider.DeleteFile(sourcePath);

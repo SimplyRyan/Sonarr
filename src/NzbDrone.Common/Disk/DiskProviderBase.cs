@@ -267,8 +267,12 @@ namespace NzbDrone.Common.Disk
             File.Move(source, destination);
         }
 
-        public abstract bool TryCreateHardLink(string source, string destination);
+        public virtual bool TryRenameFile(string source, string destination)
+        {
+            return false;
+        }
 
+        public abstract bool TryCreateHardLink(string source, string destination);
 
         public virtual bool TryCreateRefLink(string source, string destination)
         {

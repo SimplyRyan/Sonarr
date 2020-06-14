@@ -394,6 +394,11 @@ namespace NzbDrone.Mono.Disk
             }
         }
 
+        public override bool TryRenameFile(string source, string destination)
+        {
+            return Syscall.rename(source, destination) == 0;
+        }
+
         public override bool TryCreateHardLink(string source, string destination)
         {
             try
